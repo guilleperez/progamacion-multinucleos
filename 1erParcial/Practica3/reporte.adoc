@@ -1,0 +1,185 @@
+= Práctica #3: Streams en Java
+:encoding: utf-8
+:author: Rubén Escalante Chan (A01370880), Guillermo Pérez Trueba (A01377162)
+:email: A01370880@itesm.mx, A01377162@itesm.mx
+:revdate: 24 de febrero, 2019.
+:toc:
+:numbered:
+:source-highlighter: pygments
+:icons: font
+:pygments-style: manni
+:toc-title: Tabla de contenido
+:last-update-label: Última actualización:
+:table-caption: Tabla
+:figure-caption: Figura
+:example-caption: Ejemplo
+:caution-caption: Precaución
+:important-caption: Importante
+:note-caption: Nota
+:tip-caption: Consejo
+:warning-caption: Advertencia
+:appendix-caption: Apéndice
+
+Este reporte fue elaborado para el curso de _Programación multinúcleo_ del Tecnológico de Monterrey, Campus Estado de México.
+
+:numbered:
+
+== Introducción
+
+La práctica consta de 2 problemas. El primero se describe a continuación:
+
+Ordenmiento por Conteo: asumimos que los elementos en la entrada son enteros no negativos en el rango {0, 1, . . . , k}.
+En ordenamiento por conteo primero contamos cuántos elementos son menores o iguales a x, para cada elemento x. Una vez que la información es calculada, cada elemento x es colocado directamente en su posici´on final en el arreglo de salida.
+Por ejemplo, si existen 2 copias de x y existen 12 elementos menores a x en la entrada, entonces las posiciones 13 y 14 de la salida deben contener a x.
+En esta práctica se ordenó un arreglo de números entre 1 y 100 que se generaron aleatoriamente.
+
+El segundo problema consta de obtener el valor de PI según una 'n' dada. Posteriormente se generan 'n' puntos 2D aleatorios y se calcula si están dentro de la circunferencia.
+Para éste se utiliza el teorema de pitagoras y se compara el resultado, es decir {x * x + y * y < 1}. Si ésto se cumple, entonces se incrementa en uno el contador de puntos dentro de la circunferencia.
+
+El objetivo consistió en resolver estos problema de manera secuencial y paralela usando  _Streams_ de Java.
+
+[NOTE]
+.Hardware y software utilizado
+====
+Los programas se probaron en una computadora de escritorio con las siguientes características:
+
+- Procesador Intel Core i7-4770 de 3.40GHz con cuatro núcleos y ocho _hyperthreads_.
+- 1 GiB de memoria RAM.
+- Sistema operativo Ubuntu 14.04, kernel de Linux 3.13.0-107 de 64 bits.
+- Compilador Java 1.8.0_51 de Oracle.
+====
+
+== Solución
+
+=== Ordenamiento Por Conteo
+El siguiente listado muestra un programa completo en Java que ordena de forma secuencial y paralela un arreglo de tamaño 100:
+
+.OrdenamientoPorConteo.java
+[source,java]
+----
+include::OrdenamientoPorConteo.java[]
+----
+
+El programa produce esta salida:
+
+[source,text]
+
+----
+
+Array = [1, 2, 2, 2, 4, 4, 5, 7, 8, 9, 9, 9, 9, 9, 10, 11, 16, 16, 21, 22, 23, 25, 26, 27, 28, 28, 30, 31, 32, 32, 32, 33, 34, 34, 34, 35, 36, 37, 38, 39, 43, 44, 44, 45, 46, 47, 47, 47, 48, 50, 50, 51, 51, 52, 52, 52, 54, 56, 60, 61, 61, 62, 62, 65, 66, 66, 66, 66, 67, 67, 68, 71, 71, 71, 72, 73, 73, 74, 74, 74, 75, 76, 76, 77, 79, 83, 83, 84, 84, 86, 87, 87, 87, 89, 90, 91, 91, 92, 96, 97] 
+T1 = 0.0441
+
+Array = [1, 2, 2, 2, 4, 4, 5, 7, 8, 9, 9, 9, 9, 9, 10, 11, 16, 16, 21, 22, 23, 25, 26, 27, 28, 28, 30, 31, 32, 32, 32, 33, 34, 34, 34, 35, 36, 37, 38, 39, 43, 44, 44, 45, 46, 47, 47, 47, 48, 50, 50, 51, 51, 52, 52, 52, 54, 56, 60, 61, 61, 62, 62, 65, 66, 66, 66, 66, 67, 67, 68, 71, 71, 71, 72, 73, 73, 74, 74, 74, 75, 76, 76, 77, 79, 83, 83, 84, 84, 86, 87, 87, 87, 89, 90, 91, 91, 92, 96, 97] 
+Tn = 0.0039
+
+Speeddup = 1.13076
+----
+
+El arreglo es el mismo que en la versión secuencial, por lo que podemos suponer que nuestra versión paralela produce el resultado correcto.
+
+=== Monte Carlo
+El siguiente listado muestra un programa completo en Java que calcula de forma secuencial y paralela el número &#928; dónde 'n' es 1_000_000:
+
+.MonteCarlo.java
+[source,java]
+----
+include::MonteCarlo.java[]
+----
+
+El programa produce esta salida:
+
+[source,text]
+
+----
+Secuencial
+Pi = 3.1397640000 T1 = 0.09
+
+Paralelo
+Pi = 3.1435200000 T1 = 0.02
+
+Speed Up = 4.9580
+----
+
+== Resultados
+
+=== Ordenamiento Por Conteo
+A continuación se muestran los tiempos de ejecución de varias corridas de los dos programas:
+
+.Tiempos de ejecución del ordenamiento secuencial
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~1~ (segundos)
+| 1                | 25.5492
+| 2                | 25.9551
+| 3                | 25.5839
+| 4                | 31.0371
+| 5                | 26.5620
+| Media aritmética | 26.9374
+|====
+
+.Tiempos de ejecución del ordenamiento paralelo
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~2~ (segundos)
+| 1                | 9.5628
+| 2                | 10.3210
+| 3                | 12.3339
+| 4                | 11.4265
+| 5                | 13.2698
+| Media aritmética | 11.3826
+|====
+
+A partir de las medias aritméticas calculadas, el _speedup_ obtenido en un CPU es:
+
+****
+S~2~ = T~1~ / T~2~ = 26.9374 / 11.3826 = 2.3665
+****
+
+El _speedup_ obtenido es bastante bueno. Al haber una mejora en el tiempo, se puede concluir que el uso de _parallel_ de la libreria de _java.util.stream_ si nos ayuda a optimizar nuestros programas. Otra ventaja es que resulta bastante sencillo el uso de la misma.
+
+=== Monte Carlo
+A continuación se muestran los tiempos de ejecución de varias corridas de los dos programas:
+
+.Tiempos de ejecución del cálculo secuencial
+[options="header,footer", cols="^,^", width="80%"]
+|====
+| # de corrida     | Tiempo T~1~ (segundos)
+| 1                | 0.09
+| 2                | 0.08
+| 3                | 0.08
+| 4                | 0.08
+| 5                | 0.07
+| Media aritmética | 0.08
+|====
+
+.Tiempos de ejecución del cálculo paralelo
+[options="header,footer", cols="^,^,^", width="80%"]
+|====
+| # de corrida     | Tiempo T~1~ (segundos)
+| 1                | 0.02
+| 2                | 0.02
+| 3                | 0.02
+| 4                | 0.02
+| 5                | 0.02
+| Media aritmética | 0.02
+|====
+
+A partir de las medias aritméticas calculadas, el _speedup_ obtenido en un CPU es:
+
+****
+S~2~ = T~1~ / T~2~ = 0.08 / 0.02 = 4
+****
+
+El _speedup_ obtenido es muy bueno. Para 'n' no muy altos, el uso de Streams paralelos es muy recomendable.
+
+== Agradecimientos
+
+Se agradece al profesor Ariel Ortiz por sus enseñanzas y ayuda para solucionar este problema.
+
+== Referencias
+
+[bibliography]
+
+- [[[Oracle]]] Oracle Corporation. _Module java.base from the Java 11 API Specification_ https://docs.oracle.com/en/java/javase/11/docs/api/java.base/module-summary.html.
+
+- Blai Bonet. (2018). CI2612: Algoritmos y Estructuras de Datos II. 16/02/2019+, de Universidad Simón Bolívar Sitio web: https://bonetblai.github.io/courses/ci2612/handouts/ci2612-lec10.pdf

@@ -1,0 +1,134 @@
+= Práctica #1: Calculando Pi con threads en Java
+:encoding: utf-8
+:author: Rubén Escalante Chan (A01370880), Guillermo Pérez Trueba (A01377162)
+:email: A01370880@itesm.mx, A01377162@itesm.mx
+:revdate: 27 de enero, 2019.
+:toc:
+:numbered:
+:source-highlighter: pygments
+:icons: font
+:pygments-style: manni
+:toc-title: Tabla de contenido
+:last-update-label: Última actualización:
+:table-caption: Tabla
+:figure-caption: Figura
+:example-caption: Ejemplo
+:caution-caption: Precaución
+:important-caption: Importante
+:note-caption: Nota
+:tip-caption: Consejo
+:warning-caption: Advertencia
+:appendix-caption: Apéndice
+
+Este reporte fue elaborado para el curso de _Programación multinúcleo_ del Tecnológico de Monterrey, Campus Estado de México.
+
+:numbered:
+
+== Introducción
+
+Según <<Wolfram>>, el número &#928; puede ser obtenido con la fórmula Bailey-Borwein-Plouffe. Ésta consiste en lo siguiente:
+
+****
+&#928;=&#931;(k=0, &#8734;){[4/(8k+1)]-[2/(8k+4)]-[1/(8k+5)]-[1/(8k+6)]}(1/16)^k
+****
+
+En esta práctica se calculó el número &#928; utilizando las clases `java.math.BigDecimal` y `java.lang.Math` (ver el API de Java en <<Oracle>>). El objetivo consistió en resolver este problema de manera secuencial y usando _threads_ de Java para obtener una solución paralela.
+
+[NOTE]
+.Hardware y software utilizado
+====
+Los programas se probaron en una computadora de escritorio con las siguientes características:
+
+- Procesador Intel Core i7-4770 de 3.40GHz con cuatro núcleos y ocho _hyperthreads_.
+- 1 GiB de memoria RAM.
+- Sistema operativo Ubuntu 14.04, kernel de Linux 3.13.0-107 de 64 bits.
+- Compilador Java 1.8.0_51 de Oracle.
+====
+
+== Solución secuencial
+
+El siguiente listado muestra un programa completo en Java que calcula de forma secuencial el número &#928; dónde el limite de la sumatoria (_k_) es 100_000_000:
+
+.PiSecuencial.java
+[source,java]
+----
+include::PiSecuencial.java[]
+----
+
+Dado que el número de decimales del resultado es extremadamente grande para comprobarlo, se utilizó el método `bitCount` para solo contar el número de bits igual a uno que tiene el valor binario del resultado una vez que se recorre el punto decimal todos los lugares posibles a la derecha.
+
+Esta es la salida del programa:
+
+[source,text]
+----
+Bits = 537, Pi = 3.14159265, Time = 0.5825
+----
+
+== Solución paralela
+
+La solución paralela en Java involucra usar dos _threads_. El primer _thread_ se encarga de calcular la primera mitad de la fórmula Bailey-Borwein-Plouffe: desde 0 hasta 500,000. El segundo _thread_ se encarga de calcular la otra mitad de de la fórmula Bailey-Borwein-Plouffe: desde 500,001 hasta 1,000,000.
+
+.PiParalelo.java
+[source,java]
+----
+include::PiParalelo.java[]
+----
+
+El programa produce esta salida:
+
+[source,text]
+----
+Bits = 537, Pi = 3.14159265, Time = 0.3048
+----
+
+El _bit count_ es el mismo que en la versión secuencial, por lo que podemos suponer que nuestra versión paralela produce el resultado correcto.
+
+== Resultados
+
+A continuación se muestran los tiempos de ejecución de varias corridas de los dos programas:
+
+.Tiempos de ejecución del factorial secuencial
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~1~ (segundos)
+| 1                | 0.5825
+| 2                | 0.5830
+| 3                | 0.5856
+| 4                | 0.5880
+| 5                | 0.5867
+| Media aritmética | 0.58516
+|====
+
+.Tiempos de ejecución del factorial paralelo
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~2~ (segundos)
+| 1                | 0.3048
+| 2                | 0.3545
+| 3                | 0.3526
+| 4                | 0.3641
+| 5                | 0.3565
+| Media aritmética | 0.3465
+|====
+
+A partir de las medias aritméticas calculadas, el _speedup_ obtenido en un CPU  que utiliza dos de sus núcleos (un _thread_ corriendo en cada núcleo) es:
+
+****
+S~2~ = T~1~ / T~2~ = 0.58516 / 0.3465 = 1.6887
+****
+
+El _speedup_ obtenido es muy bueno, incluso superando al _speedup_ ideal. La mejora obtenida en el tiempo compensa la complejidad adicional asociada al uso de _threads_ en Java.
+
+== Agradecimientos
+
+Se agradece al profesor Ariel Ortiz por sus enseñanzas y ayuda para solucionar este problema.
+
+== Referencias
+
+[bibliography]
+
+- [[[Oracle]]] Oracle Corporation. _Module java.base from the Java 11 API Specification_ https://docs.oracle.com/en/java/javase/11/docs/api/java.base/module-summary.html (Consultada el 24 de enero, 2019).
+
+- [[[Wolfram]]] Wolfram MathWorld. _Factorial_
+http://mathworld.wolfram.com/BBPFormula.html (Consultada el 24 de enero, 2019).
+

@@ -1,0 +1,184 @@
+= Práctica #2: Fork/Join en Java
+:encoding: utf-8
+:author: Rubén Escalante Chan (A01370880), Guillermo Pérez Trueba (A01377162)
+:email: A01370880@itesm.mx, A01377162@itesm.mx
+:revdate: 16 de febrero, 2019.
+:toc:
+:numbered:
+:source-highlighter: pygments
+:icons: font
+:pygments-style: manni
+:toc-title: Tabla de contenido
+:last-update-label: Última actualización:
+:table-caption: Tabla
+:figure-caption: Figura
+:example-caption: Ejemplo
+:caution-caption: Precaución
+:important-caption: Importante
+:note-caption: Nota
+:tip-caption: Consejo
+:warning-caption: Advertencia
+:appendix-caption: Apéndice
+
+Este reporte fue elaborado para el curso de _Programación multinúcleo_ del Tecnológico de Monterrey, Campus Estado de México.
+
+:numbered:
+
+== Introducción
+
+La práctica consta de 2 problemas. El primero se describe a continuación:
+
+Asumimos que los elementos en la entrada son enteros no negativos en el rango {0, 1, . . . , k}.
+En ordenamiento por conteo primero contamos cuántos elementos son menores o iguales a x, para cada elemento x. Una vez que la información es calculada, cada elemento x es colocado directamente en su posici´on final en el arreglo de salida.
+Por ejemplo, si existen 2 copias de x y existen 12 elementos menores a x en la entrada, entonces las posiciones 13 y 14 de la salida deben contener a x.
+En esta práctica se ordenó un arreglo de números entre 1 y 100 que se generaron aleatoriamente.
+
+El segundo problema consta de obtener el valor de PI según una 'n' dada. Posteriormente se generan 'n' puntos 2D aleatorios y se calcula si están dentro de la circunferencia.
+Para éste se utiliza el teorema de pitagoras y se compara el resultado, es decir {x * x + y * y < 1}. Si ésto se cumple, entonces se incrementa en uno el contador de puntos dentro de la circunferencia.
+
+El objetivo consistió en resolver estos problema de manera secuencial y usando la librería _ForkJoinPool_ de Java para obtener una solución paralela.
+
+[NOTE]
+.Hardware y software utilizado
+====
+Los programas se probaron en una computadora de escritorio con las siguientes características:
+
+- Procesador Intel Core i7-4770 de 3.40GHz con cuatro núcleos y ocho _hyperthreads_.
+- 1 GiB de memoria RAM.
+- Sistema operativo Ubuntu 14.04, kernel de Linux 3.13.0-107 de 64 bits.
+- Compilador Java 1.8.0_51 de Oracle.
+====
+
+== Solución
+
+=== Ordenamiento Por Conteo
+El siguiente listado muestra un programa completo en Java que ordena de forma secuencial y paralela un arreglo de tamaño 100:
+
+.OrdenamientoPorConteo.java
+[source,java]
+----
+include::OrdenamientoPorConteo.java[]
+----
+
+El programa produce esta salida:
+
+[source,text]
+
+----
+Array = [0, 1, 4, 5, 5, 5, 6, 7, 7, 8, 8, 10, 12, 12, 12, 13, 14, 16, 17, 18, 18, 19, 21, 21, 21, 21, 22, 23, 23, 23, 24, 25, 27, 27, 28, 29, 29, 31, 34, 35, 36, 37, 37, 39, 39, 39, 40, 42, 43, 44, 45, 46, 47, 47, 49, 52, 52, 61, 63, 63, 64, 64, 65, 65, 66, 68, 70, 70, 71, 75, 76, 76, 76, 77, 78, 79, 81, 82, 83, 83, 83, 84, 85, 86, 88, 89, 89, 90, 91, 91, 91, 92, 93, 93, 96, 97, 97, 97, 98, 99] 
+T1 = 0.0003
+
+Array = [0, 1, 4, 5, 5, 5, 6, 7, 7, 8, 8, 10, 12, 12, 12, 13, 14, 16, 17, 18, 18, 19, 21, 21, 21, 21, 22, 23, 23, 23, 24, 25, 27, 27, 28, 29, 29, 31, 34, 35, 36, 37, 37, 39, 39, 39, 40, 42, 43, 44, 45, 46, 47, 47, 49, 52, 52, 61, 63, 63, 64, 64, 65, 65, 66, 68, 70, 70, 71, 75, 76, 76, 76, 77, 78, 79, 81, 82, 83, 83, 83, 84, 85, 86, 88, 89, 89, 90, 91, 91, 91, 92, 93, 93, 96, 97, 97, 97, 98, 99]
+T8 = 0.0026
+
+Speeddup = 0.0933
+----
+
+El arreglo es el mismo que en la versión secuencial, por lo que podemos suponer que nuestra versión paralela produce el resultado correcto.
+
+=== Monte Carlo
+El siguiente listado muestra un programa completo en Java que calcula de forma secuencial y paralela el número &#928; dónde 'n' es 1_000_000_000:
+
+.MonteCarlo.java
+[source,java]
+----
+include::MonteCarlo.java[]
+----
+
+El programa produce esta salida:
+
+[source,text]
+
+----
+Secuencial
+Pi = 3.1416406320 T1 = 8.45
+
+Paralelo
+Pi = 3.1416141280 T1 = 8.21
+
+Speed Up = 1.0285
+----
+
+== Resultados
+
+=== Ordenamiento Por Conteo
+A continuación se muestran los tiempos de ejecución de varias corridas de los dos programas:
+
+.Tiempos de ejecución del ordenamiento secuencial
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~1~ (segundos)
+| 1                | 0.0002
+| 2                | 0.0002
+| 3                | 0.0002
+| 4                | 0.0002
+| 5                | 0.0002
+| Media aritmética | 0.0002
+|====
+
+.Tiempos de ejecución del ordenamiento paralelo
+[options="header,footer", cols="^,^", width="70%"]
+|====
+| # de corrida     | Tiempo T~2~ (segundos)
+| 1                | 0.0026
+| 2                | 0.0006
+| 3                | 0.0005
+| 4                | 0.0006
+| 5                | 0.0008
+| Media aritmética | 0.0012
+|====
+
+A partir de las medias aritméticas calculadas, el _speedup_ obtenido en un CPU es:
+
+****
+S~2~ = T~1~ / T~2~ = 0.0002 / 0.0012 = 0.16667
+****
+
+El _speedup_ obtenido es bastante malo. Al no haber una mejora en el tiempo, no se justifica la complejidad adicional asociada al uso de _ForkJoinPool_ en Java.
+
+=== Monte Carlo
+A continuación se muestran los tiempos de ejecución de varias corridas de los dos programas:
+
+.Tiempos de ejecución del cálculo secuencial
+[options="header,footer", cols="^,^,^", width="80%"]
+|====
+| # de corrida     | Resultado      | Tiempo T~1~ (segundos)
+| 1                | 3.1416406320   | 8.45
+| 2                | 3.1415384800   | 8.20
+| 3                | 3.1415754000   | 8.24
+| 4                | 3.1415364200   | 8.64
+| 5                | 3.1417017760   | 8.19
+| Media aritmética | 3.1415985416   | 8.344
+|====
+
+.Tiempos de ejecución del cálculo paralelo
+[options="header,footer", cols="^,^,^", width="80%"]
+|====
+| # de corrida     | Resultado      | Tiempo T~1~ (segundos)
+| 1                | 3.1416141280   | 8.21
+| 2                | 3.1417134000   | 8.48
+| 3                | 3.1415550840   | 9.26
+| 4                | 3.1416336320   | 8.79 
+| 5                | 3.1416005600   | 9.43
+| Media aritmética | 3.1416233608   | 8.834
+|====
+
+A partir de las medias aritméticas calculadas, el _speedup_ obtenido en un CPU es:
+
+****
+S~2~ = T~1~ / T~2~ = 8.344 / 8.834 = 0.94453
+****
+
+El _speedup_ obtenido es negativo. No representa ningun beneficio el uso de _ForkJoinPool_ en Java para resolver este ejercicio.
+
+== Agradecimientos
+
+Se agradece al profesor Ariel Ortiz por sus enseñanzas y ayuda para solucionar este problema.
+
+== Referencias
+
+[bibliography]
+
+- [[[Oracle]]] Oracle Corporation. _Module java.base from the Java 11 API Specification_ https://docs.oracle.com/en/java/javase/11/docs/api/java.base/module-summary.html (Consultada el 24 de enero, 2019).
+
+- Blai Bonet. (2018). CI2612: Algoritmos y Estructuras de Datos II. 16/02/2019+, de Universidad Simón Bolívar Sitio web: https://bonetblai.github.io/courses/ci2612/handouts/ci2612-lec10.pdf
